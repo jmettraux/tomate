@@ -1,4 +1,5 @@
 
+require 'time'
 require 'terminal-notifier' rescue nil
 
 
@@ -31,6 +32,22 @@ module Tomate
       sleep(BREAK_DURATION)
 
       notify("pomodoro 5' break ended", sound: 'morse')
+    end
+
+    def query
+
+      lin = File.readlines(FILEPATH).last
+      sta = Time.parse(lin.split(' - ').first)
+      edn = sta + WORK_DURATION
+      now = Time.now
+
+      if now < edn
+        dlt = (edn - now).to_i / 60
+        puts "current pomodoro ends in #{dlt}m at #{edn}"
+        puts "> #{lin.strip}"
+      else
+        puts "no pomodoro currently"
+      end
     end
 
     protected
@@ -70,5 +87,10 @@ fail
   end
 end
 
-Tomate.start(ARGV)
+
+if ARGV.any?
+  Tomate.start(ARGV)
+else
+  Tomate.query
+end
 
