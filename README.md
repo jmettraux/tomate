@@ -1,7 +1,7 @@
 
 # tomate
 
-My own pomodoro timer and logger.
+My own [Pomodoro](https://francescocirillo.com/pages/pomodoro-technique) timer and logger.
 
 ## license
 
