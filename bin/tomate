@@ -23,7 +23,11 @@ set -x PATH $GEM_HOME/bin:$GEM_ROOT/bin:$RUBY_ROOT/bin:$PATH
 #echo "\$GEM_PATH: $GEM_PATH"
 #echo "\$PATH: $PATH"
 
-cd $tomdir && bundle exec ruby lib/tomate.rb $argv
+if test (count $argv) -eq 0
+  cd $tomdir && bundle exec ruby lib/tomate.rb
+else
+  cd $tomdir && bundle exec ruby lib/tomate.rb $argv &
+end
 
 # vim: set ft=sh
 
