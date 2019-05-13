@@ -14,10 +14,10 @@ module Tomate
 
   class << self
 
-    def start(args)
+    def start(argv)
 
       t = Time.now
-      text = args.join(' ')
+      text = argv.join(' ')
 
       write_start(t, text)
 
@@ -33,45 +33,77 @@ module Tomate
 
       notify("pomodoro 5' break ended", sound: 'morse')
     end
+    alias s start
 
-    def query
+    def query(argv)
 
-      lin = File.readlines(FILEPATH).last
-      sta = Time.parse(lin.split(' - ').first)
-      edn = sta + WORK_DURATION
-      now = Time.now
+      sta, edn, dlt, pid, lin = current_line
 
-      if now < edn
-        dlt = (edn - now).to_i / 60
-        puts "current pomodoro ends in #{dlt}m at #{edn}"
-        puts "> #{lin.strip}"
+      if sta
+        puts "current pomodoro (#{pid}) ends in #{dlt}m at #{edn}"
+        puts "> #{lin.split('-').last}"
       else
         puts "no pomodoro currently"
       end
     end
+    alias q query
+
+    def today(argv)
+
+      tod = Time.now.strftime('%F')
+
+      File.readlines(FILEPATH).each do |l|
+        print(l) if l[0, 10] == tod
+      end
+    end
+    alias to today
 
     protected
+
+    def current_line
+
+      lin = (File.readlines(FILEPATH) rescue []).last
+
+      return nil unless lin
+
+      sta, _, pid = lin.split(' - ')
+      sta = Time.parse(sta)
+      edn = sta + WORK_DURATION
+      now = Time.now
+
+      if Time.now < edn
+        [ sta, edn, (edn - now).to_i / 60, pid, lin ]
+      else
+        nil
+      end
+    end
 
     def write_start(time, text)
 
       sta = time.strftime('%F %R')
+      pid = Process.pid
 
-      File.open(FILEPATH, 'ab') { |f| f.puts("#{sta} -   :    #{text}") }
+      File.open(FILEPATH, 'ab') do |f|
+        f.puts("#{sta} -   :   - #{pid} - #{text}")
+      end
     end
 
     def write_end(time, text)
 
       sta = time.strftime('%F %R')
       edn = (time + WORK_DURATION).strftime('%R')
+      pid = Process.pid
 
       lines = File.readlines(FILEPATH)
       line = lines.pop
 
-      if line == "#{sta} -   :    #{text}\n"
+      if line == "#{sta} -   :   - #{pid} - #{text}\n"
         File.open(FILEPATH, 'wb') { |f| lines.each { |l| f.write(l) } }
       end
 
-      File.open(FILEPATH, 'ab') { |f| f.puts("#{sta} - #{edn}  #{text}") }
+      File.open(FILEPATH, 'ab') do |f|
+        f.puts("#{sta} - #{edn} - #{pid} - #{text}")
+      end
     end
 
     def notify(text, opts={})
@@ -88,9 +120,6 @@ fail
 end
 
 
-if ARGV.any?
-  Tomate.start(ARGV)
-else
-  Tomate.query
-end
+com = ARGV.shift || 'query'
+Tomate.send(com, ARGV)
 
