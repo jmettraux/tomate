@@ -58,6 +58,27 @@ module Tomate
     end
     alias to today
 
+    def kill(argv)
+
+      sta, edn, dlt, pid, lin = current_line
+
+      if sta
+        puts "current pomodoro (#{pid}) should end in #{dlt}m at #{edn}"
+        if system("kill -9 #{pid}")
+          puts "killed."
+        end
+      else
+        puts "no pomodoro currently"
+      end
+    end
+    alias k kill
+
+    def all(argv)
+
+      print(File.read(FILEPATH))
+    end
+    alias a all
+
     protected
 
     def current_line
