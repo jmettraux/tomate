@@ -1,27 +1,8 @@
 #! /usr/bin/env fish
 
+set -x FISH_CHRUBY_SILENT "true"
+
 set -l tomdir (dirname (realpath (status --current-filename)))/..
-set -l rubyver (ls ~/.rubies/ | grep (cat $tomdir/.ruby-version))
-set -l rubyev (string split "-" -- $rubyver)
-#echo $rubyver
-#echo $rubyev
-
-set -x RUBY_ENGINE $rubyev[1]
-set -x RUBY_VERSION $rubyev[2]
-#echo "\$RUBY_ENGINE: $RUBY_ENGINE"
-#echo "\$RUBY_VERSION: $RUBY_VERSION"
-
-set -x RUBY_ROOT ~/.rubies/$rubyver
-set -x GEM_HOME ~/.gem/ruby/$RUBY_VERSION
-set -x GEM_ROOT $RUBY_ROOT/lib/ruby/gems/(ls $RUBY_ROOT/lib/ruby/gems)[1]
-set -x GEM_PATH $GEM_HOME:$GEM_ROOT
-set -x PATH $GEM_HOME/bin:$GEM_ROOT/bin:$RUBY_ROOT/bin:$PATH
-
-#echo "\$RUBY_ROOT: $RUBY_ROOT"
-#echo "\$GEM_HOME: $GEM_HOME"
-#echo "\$GEM_ROOT: $GEM_ROOT"
-#echo "\$GEM_PATH: $GEM_PATH"
-#echo "\$PATH: $PATH"
 
 if test "$argv[1]" = "start"
   cd $tomdir && bundle exec ruby lib/tomate.rb $argv &
