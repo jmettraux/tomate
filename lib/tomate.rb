@@ -17,7 +17,13 @@ module Tomate
     def start(argv)
 
       t = Time.now
-      text = argv.join(' ')
+
+      text =
+        if argv.any?
+          argv.join(' ')
+        else
+          last_text
+        end
 
       write_start(t, text)
 
@@ -34,17 +40,6 @@ module Tomate
       notify("pomodoro 5' break ended", sound: 'morse')
     end
     alias s start
-
-    def again(argv)
-
-      lin = (File.readlines(FILEPATH) rescue []).last
-
-      fail "no previous line" unless lin
-
-      txt = lin.split('-')[5..-1].join('-').strip
-
-      start([ txt ])
-    end
 
     def query(argv)
 
@@ -108,6 +103,15 @@ module Tomate
       else
         nil
       end
+    end
+
+    def last_text
+
+      lin = (File.readlines(FILEPATH) rescue []).last
+
+      fail "no previous line" unless lin
+
+      lin.split('-')[5..-1].join('-').strip
     end
 
     def write_start(time, text)
