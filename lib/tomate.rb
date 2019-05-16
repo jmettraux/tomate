@@ -35,6 +35,17 @@ module Tomate
     end
     alias s start
 
+    def again(argv)
+
+      lin = (File.readlines(FILEPATH) rescue []).last
+
+      fail "no previous line" unless lin
+
+      txt = lin.split('-')[5..-1].join('-').strip
+
+      start([ txt ])
+    end
+
     def query(argv)
 
       sta, edn, dlt, pid, lin = current_line
