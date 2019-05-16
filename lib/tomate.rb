@@ -27,13 +27,13 @@ module Tomate
 
       write_start(t, text)
 
-      notify('pomodoro started', sound: 'submarine')
+      notify(text, 'pomodoro started', sound: 'submarine')
 
       sleep(WORK_DURATION)
 
       write_end(t, text)
 
-      notify('pomodoro ended', sound: 'default')
+      notify(text, 'pomodoro ended', sound: 'default')
 
       sleep(BREAK_DURATION)
 
@@ -142,12 +142,26 @@ module Tomate
       end
     end
 
-    def notify(text, opts={})
+    def notify(text0, text1=nil, opts=nil)
+
+      text1, opts =
+        if text1.is_a?(Hash)
+          [ nil, text1 ]
+        else
+          [ text1, opts || {} ]
+        end
+      subtitle, message =
+        if text1
+          [ text0, text1 ]
+        else
+          [ nil, text0 ]
+        end
 
       opts[:title] = TITLE
+      opts[:subtitle] = subtitle if subtitle
 
       if defined?(TerminalNotifier)
-        TerminalNotifier.notify(text, opts)
+        TerminalNotifier.notify(message, opts)
       else
 fail
       end
